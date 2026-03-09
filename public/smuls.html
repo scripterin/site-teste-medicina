@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMULS TEORETIC</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background"></div>
+
+    <div class="quiz-container">
+
+        <div class="quiz-header">
+            <span class="quiz-title">🚑 SMULS Teoretic</span>
+            <span class="quiz-progress">Întrebarea <b id="progress">1/15</b></span>
+            <span class="quiz-progress">Greșeli: <b id="mistakes" style="color:#ff4444;">0/3</b></span>
+            <span class="quiz-timer">Timp Rămas: <b id="timer">02:00</b></span>
+        </div>
+
+        <div id="quiz-content">
+            <div id="questionBox" class="quiz-question"></div>
+
+            <div id="answersBox" class="quiz-answers"></div>
+
+            <div class="quiz-actions">
+                <button id="btn-revoke" class="btn-revoke" style="display: none;" onclick="revokeAnswer()">Revocă Răspunsul</button>
+                <button id="btn-next" class="btn-confirm" disabled onclick="confirmAndNext()">Următoarea Întrebare</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="smuls.js"></script>
+</body>
+</html>

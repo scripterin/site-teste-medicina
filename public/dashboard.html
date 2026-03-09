@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://discord.com/; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src https://cdnjs.cloudflare.com;">
+<title>MEDICI TESTE</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="background"></div>
+
+<!-- Overlay reguli HR -->
+<div id="rulesOverlay" class="overlay">
+    <div id="rulesCard" class="rules-card">
+        <h2>Regulament</h2>
+        <div class="rules-list">
+            <div class="rule-item">
+                <p><i class="fa-brands fa-discord" style="color:#5865F2; margin-right:8px;"></i><b>Conectați-vă cu Discord-ul</b><br>
+                <small>Poate dura până la un minut să te poți autentifica!</small></p>
+            </div>
+
+            <div class="rule-item">
+                <p><i class="fa-solid fa-clock" style="color:#ffcc00; margin-right:8px;"></i><b>Verificați dacă aveți cooldown</b><br>
+                <small>Dacă ați susținut recent un test, este posibil să trebuiască să așteptați.</small></p>
+            </div>
+
+            <div class="rule-item">
+                <p><i class="fa-solid fa-list-check" style="color:#00c3ff; margin-right:8px;"></i><b>Selectați testul dorit</b><br>
+                <small>Alegeți testul corespunzător certificatului dorit.</small></p>
+            </div>
+
+            <div class="rule-item">
+                <p><i class="fa-solid fa-circle-exclamation" style="color:#ff4444; margin-right:8px;"></i><b>Solicitați codul o singură dată!</b><br>
+                <small>Nu trimiteți mai multe cereri pentru același test.</small></p>
+            </div>
+
+            <div class="rule-item">
+                <p><i class="fa-solid fa-hourglass-half" style="color:#aaaaaa; margin-right:8px;"></i><b>Așteptați codul de la un HR</b><br>
+                <small>Un membru HR vă va trimite codul necesar după cerere.</small></p>
+            </div>
+
+            <div class="rules-divider"></div>
+
+            <p class="rule-alert red"><i class="fa-solid fa-ban" style="margin-right:8px;"></i>Nu cereți codul direct de la un HR! Respectați procedura.</p>
+            <p class="rule-alert yellow"><i class="fa-solid fa-mobile-screen-button" style="margin-right:8px;"></i>NU DAȚI TESTELE DE PE TELEFON (Posibile bug-uri vizuale).</p>
+
+            <div class="rules-footer">
+                <p><i class="fa-solid fa-envelope" style="margin-right:8px;"></i><b>Contact:</b> @madal1nb, @devil_47</p>
+                <p><i class="fa-solid fa-video" style="margin-right:8px;"></i><b>Sfat:</b> Recomandăm filmarea testului pentru dovezi.</p>
+            </div>
+        </div>
+
+        <!-- Bara progres timer -->
+        <div id="timerProgressContainer">
+            <div id="timerProgress"></div>
+        </div>
+
+        <!-- Checkbox, ascuns la început -->
+        <div id="checkboxContainer" style="display:none; margin-top:20px;">
+            <label>
+                <input type="checkbox" id="acceptRules">
+                Am citit și accept regulile
+            </label>
+        </div>
+
+        <!-- Buton accesează, ascuns la început -->
+        <div id="accessBtnContainer" style="display:none; margin-top:15px; text-align:center;">
+            <button id="accessBtn" class="start">Accesează</button>
+        </div>
+    </div>
+</div>
+
+<!-- Card utilizator dreapta sus -->
+<div id="userCard" class="user-card"></div>
+
+<!-- Dashboard teste -->
+<div class="card">
+    <h1>Departament Medical</h1>
+    <p>Selectează testul dorit</p>
+
+    <div class="tests">
+        <div class="test" onclick="selectTest(this)">RADIO</div>
+        <div class="test" onclick="selectTest(this)">BLS</div>
+        <div class="test" onclick="selectTest(this)">REZIDENȚIAT</div>
+        <div class="test" onclick="selectTest(this)">SMULS TEORETIC</div>
+    </div>
+
+    <div class="code-box">
+        <input type="text" placeholder="Introdu codul...">
+        <button onclick="generate(selectedTest)">Solicită</button>
+    </div>
+
+    <button class="start" onclick="startTestWithCode()">Începe Testul</button>
+</div>
+
+<div id="toast-container"></div>
+
+<audio id="toastSound" src="sound.mp3" preload="auto"></audio>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,1019 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap');
+
+/* ================= Global ================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Sora', sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #0a0a12;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Animated background */
+.background {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background:
+        radial-gradient(circle at 25% 35%, rgba(255, 100, 0, 0.45), transparent 38%),
+        radial-gradient(circle at 75% 65%, rgba(0, 170, 255, 0.4), transparent 38%),
+        radial-gradient(circle at 50% 50%, rgba(80, 0, 180, 0.2), transparent 55%);
+    animation: moveBg 12s infinite alternate ease-in-out;
+    filter: blur(100px);
+}
+
+@keyframes moveBg {
+    from { transform: translate(-10%, -10%) scale(1); }
+    to   { transform: translate(10%, 10%) scale(1.08); }
+}
+
+/* ================= Dashboard main card ================= */
+.card {
+    position: relative;
+    width: 500px;
+    padding: 44px 40px;
+    border-radius: 28px;
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.05) inset,
+        0 8px 60px rgba(0, 0, 0, 0.7),
+        0 0 100px rgba(0, 170, 255, 0.07),
+        0 0 40px rgba(167, 139, 250, 0.04);
+    text-align: center;
+    color: white;
+    z-index: 1;
+    animation: fadeUp 0.55s cubic-bezier(.22,.68,0,1.2) both;
+    overflow: hidden;
+}
+
+/* Glow decorativ sus */
+.card::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 120px;
+    background: radial-gradient(ellipse, rgba(0, 195, 255, 0.1), transparent 70%);
+    pointer-events: none;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(28px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.card h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+    background: linear-gradient(120deg, #fff 20%, #a0cfff 60%, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.card p {
+    font-size: 13px;
+    margin-bottom: 28px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.2px;
+}
+
+/* ================= Dashboard user card ================= */
+.user-card {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 220px;
+    padding: 12px 16px;
+    border-radius: 18px;
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(0, 195, 255, 0.04);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    z-index: 2;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.user-card:hover {
+    border-color: rgba(255, 255, 255, 0.13);
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.06) inset,
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(0, 195, 255, 0.08);
+}
+
+.user-card .avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(0, 195, 255, 0.2);
+    flex-shrink: 0;
+}
+
+.user-card div {
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+    min-width: 0;
+}
+
+.user-card div div {
+    font-weight: 600;
+    font-size: 13px;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-card div small {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.38);
+    margin-top: 2px;
+}
+
+/* ================= Tests & code box ================= */
+.tests {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.test {
+    padding: 13px 12px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(.22,.68,0,1.2);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: rgba(255, 255, 255, 0.7);
+    position: relative;
+    overflow: hidden;
+}
+
+.test::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,195,255,0.06), transparent);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.test:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.test:hover::before { opacity: 1; }
+
+.test.active {
+    border-color: rgba(0, 195, 255, 0.5);
+    background: rgba(0, 195, 255, 0.07);
+    color: #fff;
+    box-shadow:
+        0 0 20px rgba(0, 195, 255, 0.15),
+        0 0 0 1px rgba(0, 195, 255, 0.2) inset;
+}
+
+.test.active::before { opacity: 1; }
+
+/* ================= Code box ================= */
+.code-box {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.code-box input {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    outline: none;
+    background: rgba(255, 255, 255, 0.04);
+    color: white;
+    font-size: 13px;
+    font-family: 'Sora', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.code-box input:focus {
+    border-color: rgba(0, 195, 255, 0.35);
+    box-shadow: 0 0 0 3px rgba(0, 195, 255, 0.06);
+}
+
+.code-box input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+.code-box button {
+    padding: 12px 18px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, #ff7a00, #ff3c00);
+    color: white;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Sora', sans-serif;
+    letter-spacing: 0.3px;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+}
+
+.code-box button:hover {
+    box-shadow: 0 0 24px rgba(255, 100, 0, 0.45);
+    transform: translateY(-1px);
+}
+
+/* ================= Start button ================= */
+.start {
+    width: 100%;
+    padding: 13px;
+    border-radius: 14px;
+    border: none;
+    font-weight: 700;
+    font-size: 14px;
+    font-family: 'Sora', sans-serif;
+    letter-spacing: 0.4px;
+    background: linear-gradient(135deg, #00c3ff 0%, #0055ff 100%);
+    color: white;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.start::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left 0.4s ease;
+}
+
+.start:hover::before { left: 100%; }
+
+.start:hover {
+    box-shadow: 0 0 30px rgba(0, 195, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+/* ================= Overlay general ================= */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.75) 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.45s ease;
+}
+
+.overlay.show {
+    opacity: 1;
+}
+
+/* ================= Card reguli ================= */
+.rules-card {
+    width: 440px;
+    max-height: 88vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 30px 28px;
+    border-radius: 24px;
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 25px 60px rgba(0, 0, 0, 0.7),
+        0 0 80px rgba(0, 195, 255, 0.04);
+    color: white;
+    text-align: left;
+    position: relative;
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(.22,.68,0,1.2);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.rules-card::-webkit-scrollbar {
+    display: none;
+}
+
+.rules-card.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.rules-card h2 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-align: center;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: linear-gradient(120deg, #fff 30%, #7ec8ff 70%, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ================= Rule items ================= */
+.rule-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 7px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.rule-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.rules-card .rules-list p {
+    margin: 0;
+    line-height: 1.5;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.rules-card .rules-list b {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.rules-card .rules-list small {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.38);
+    line-height: 1.4;
+}
+
+/* ================= Divider ================= */
+.rules-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+    margin: 12px 0;
+}
+
+/* ================= Alerts ================= */
+.rule-alert {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    padding: 9px 14px;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.rule-alert.red {
+    background: rgba(255, 60, 0, 0.08);
+    border: 1px solid rgba(255, 60, 0, 0.18);
+    color: #ff7b6b;
+}
+
+.rule-alert.yellow {
+    background: rgba(255, 200, 0, 0.07);
+    border: 1px solid rgba(255, 200, 0, 0.18);
+    color: #ffd966;
+}
+
+/* ================= Footer ================= */
+.rules-footer {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.rules-footer p {
+    font-size: 11.5px;
+    color: rgba(255, 255, 255, 0.38);
+    margin-bottom: 4px;
+}
+
+.rules-footer p:last-child { margin-bottom: 0; }
+
+/* ================= Timer bara ================= */
+#timerProgressContainer {
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 3px;
+    margin-top: 16px;
+    overflow: hidden;
+}
+
+#timerProgress {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #a78bfa, #00c3ff);
+    border-radius: 3px;
+    transition: width 1s linear;
+    box-shadow: 0 0 8px rgba(0, 195, 255, 0.4);
+}
+
+/* ================= Checkbox ================= */
+#checkboxContainer {
+    margin-top: 16px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+#checkboxContainer label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+    cursor: pointer;
+    user-select: none;
+}
+
+#checkboxContainer input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #00c3ff;
+    cursor: pointer;
+}
+
+/* ================= Buton accesează ================= */
+#accessBtnContainer {
+    margin-top: 12px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+#checkboxContainer.show,
+#accessBtnContainer.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+/* ================= TEST PAGE (universal) ================= */
+
+.quiz-container {
+    position: relative;
+    z-index: 1;
+    width: 860px;
+    border-radius: 24px;
+    background: rgba(18, 16, 16, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 30px 80px rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+    animation: fadeUp 0.5s cubic-bezier(.22,.68,0,1.2) both;
+}
+
+.quiz-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 32px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.quiz-title {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.quiz-progress {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.45);
+    font-weight: 400;
+}
+
+.quiz-progress b,
+.quiz-timer b {
+    color: #ff8c00;
+    font-weight: 700;
+}
+
+.quiz-timer {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.quiz-question {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+    padding: 40px 48px 32px;
+    line-height: 1.6;
+    letter-spacing: -0.2px;
+}
+
+.quiz-answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 32px 28px;
+}
+
+.answerBtn {
+    width: 100%;
+    padding: 16px 22px;
+    text-align: left;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 14px;
+    font-family: 'Sora', sans-serif;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.answerBtn::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    flex-shrink: 0;
+    display: block;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: background 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                border-color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    background: transparent;
+}
+
+.answerBtn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.13);
+    color: #fff;
+}
+
+.answerBtn:hover::before {
+    border-color: rgba(255, 255, 255, 0.45);
+}
+
+.answerBtn.selected {
+    background: rgba(255, 140, 0, 0.09);
+    border-color: rgba(255, 140, 0, 0.4);
+    color: #fff;
+}
+
+.answerBtn.selected::before {
+    background: radial-gradient(circle at 38% 32%, #ffb347 0%, #ff8c00 45%, #e06500 100%) !important;
+    border-color: #ff8c00 !important;
+    box-shadow:
+        0 0 0 3px rgba(255, 140, 0, 0.18),
+        0 0 14px rgba(255, 120, 0, 0.55),
+        inset 0 1px 2px rgba(255, 200, 100, 0.35);
+    transform: scale(1.1);
+}
+
+.quiz-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    padding: 0 32px 28px;
+}
+
+.btn-confirm {
+    padding: 14px 36px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, #ff8c00, #ff4500);
+    color: white;
+    font-family: 'Sora', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-confirm::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+    transition: left 0.4s ease;
+}
+
+.btn-confirm:hover::before { left: 100%; }
+
+.btn-confirm:hover:not(:disabled) {
+    box-shadow: 0 0 28px rgba(255, 120, 0, 0.5);
+    transform: translateY(-1px);
+}
+
+.btn-confirm:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-revoke {
+    padding: 14px 28px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    font-family: 'Sora', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.btn-revoke:hover {
+    border-color: rgba(255, 60, 60, 0.45);
+    background: rgba(255, 60, 60, 0.07);
+    color: #ff6b6b;
+}
+
+.success-msg {
+    color: #00ff88;
+    text-shadow: 0 0 12px rgba(0, 255, 136, 0.4);
+    text-align: center;
+    font-weight: 600;
+    padding: 16px;
+}
+
+.error-msg {
+    color: #ff4444;
+    text-shadow: 0 0 12px rgba(255, 60, 0, 0.4);
+    text-align: center;
+    font-weight: 600;
+    padding: 16px;
+}
+
+/* ================= RESULT SCREEN ================= */
+.result-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 52px 48px;
+    gap: 24px;
+    text-align: center;
+}
+
+.result-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.result-icon--passed {
+    background: rgba(0, 255, 136, 0.1);
+    border: 2px solid rgba(0, 255, 136, 0.4);
+    color: #00ff88;
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+}
+
+.result-icon--failed {
+    background: rgba(255, 60, 0, 0.1);
+    border: 2px solid rgba(255, 60, 0, 0.4);
+    color: #ff3c00;
+    box-shadow: 0 0 30px rgba(255, 60, 0, 0.2);
+}
+
+.result-title {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.result-title--passed { color: #00ff88; text-shadow: 0 0 24px rgba(0, 255, 136, 0.35); }
+.result-title--failed { color: #ff3c00; text-shadow: 0 0 24px rgba(255, 60, 0, 0.35); }
+
+.result-stats {
+    display: flex;
+    gap: 32px;
+}
+
+.result-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    padding: 16px 28px;
+}
+
+.stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.stat-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.btn-confirm--muted {
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: none !important;
+}
+
+.btn-confirm--muted:hover:not(:disabled) {
+    box-shadow: none !important;
+    background: rgba(255, 255, 255, 0.13) !important;
+}
+
+/* ================= Toast ================= */
+#toast-container {
+    position: fixed;
+    top: 130px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.toast {
+    min-width: 280px;
+    max-width: 340px;
+    background: rgba(12, 12, 20, 0.85);
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 16px;
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.06) inset,
+        0 12px 40px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    animation: slideIn 0.35s cubic-bezier(.22,.68,0,1.2) forwards;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Linie colorata subtire sus */
+.toast::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    border-radius: 16px 16px 0 0;
+    background: #4caf50;
+}
+
+.toast.warning::before { background: linear-gradient(90deg, #ff9800, #ffc107); }
+.toast.success::before { background: linear-gradient(90deg, #00c853, #69f0ae); }
+.toast.error::before   { background: linear-gradient(90deg, #ff1744, #ff6b6b); }
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toast-icon {
+    font-size: 15px;
+    flex-shrink: 0;
+    opacity: 0.9;
+}
+
+.toast-close {
+    cursor: pointer;
+    opacity: 0.3;
+    font-size: 14px;
+    margin-left: 12px;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+}
+
+.toast-close:hover { opacity: 1; }
+
+@keyframes slideIn {
+    from { transform: translateX(110%) scale(0.95); opacity: 0; }
+    to   { transform: translateX(0) scale(1);       opacity: 1; }
+}
+
+@keyframes fadeOut {
+    to { transform: translateX(110%) scale(0.95); opacity: 0; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= Responsive ================= */
+@media (max-width: 600px) {
+    .container { padding: 24px; }
+    #questionBox { font-size: 15px; }
+    .answerBtn { font-size: 14px; }
+    .card { width: 95%; padding: 32px 22px; }
+}
+
+/* ── Login page ── */
+body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #07070f;
+    font-family: 'Sora', sans-serif;
+    overflow: hidden;
+    position: relative;
+}
+
+.background {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse at 20% 50%, rgba(0, 85, 255, 0.15), transparent 50%),
+        radial-gradient(ellipse at 80% 50%, rgba(0, 195, 255, 0.1), transparent 50%);
+    pointer-events: none;
+}
+
+.card {
+    position: relative;
+    z-index: 1;
+    width: 420px;
+    padding: 52px 44px;
+    border-radius: 28px;
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 30px 80px rgba(0, 0, 0, 0.8),
+        0 0 100px rgba(0, 170, 255, 0.06);
+    text-align: center;
+    color: white;
+    animation: fadeUp 0.6s cubic-bezier(.22,.68,0,1.2) both;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0,195,255,0.4), transparent);
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.card h1 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    background: linear-gradient(120deg, #fff 30%, #a0cfff 70%, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.3px;
+}
+
+.card p {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.38);
+    margin-bottom: 36px;
+    line-height: 1.6;
+}
+
+.discord-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px 24px;
+    border-radius: 14px;
+    border: none;
+    background: #5865F2;
+    color: white;
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.discord-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left 0.4s ease;
+}
+
+.discord-btn:hover::before { left: 100%; }
+
+.discord-btn:hover {
+    background: #4752c4;
+    box-shadow: 0 0 30px rgba(88, 101, 242, 0.5);
+    transform: translateY(-2px);
+}
+
+.discord-btn svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}

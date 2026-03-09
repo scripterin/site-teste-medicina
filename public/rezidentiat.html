@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rezidențiat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background"></div>
+    
+    <div class="card" id="quiz-container" style="width: 650px; margin: auto; position: relative; text-align: center;">
+        <h2 id="test-title">🎓 REZIDENȚIAT</h2>
+        
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+            <span>Întrebarea: <b id="progress">1/25</b></span>
+            <span>Timp Rămas: <b id="timer" style="color: #ffcc00;">06:00</b></span>
+            <span>Greșeli: <b id="mistakes" style="color: #ff4444;">0/3</b></span>
+        </div>
+
+        <div id="quiz-content">
+            <div id="questionBox" style="font-size: 1.2rem; margin-bottom: 25px; text-align: left; min-height: 60px; color: #fff; line-height: 1.5;">
+            </div>
+
+            <div id="answersBox" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px;">
+            </div>
+
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button id="btn-revoke" class="start" style="background: #555; display: none;" onclick="revokeAnswer()">Revocă Răspunsul</button>
+                <button id="btn-next" class="start" style="opacity: 0.5; cursor: not-allowed;" disabled onclick="confirmAndNext()">Confirmă Răspunsul</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="rezidentiat.js"></script>
+</body>
+</html>

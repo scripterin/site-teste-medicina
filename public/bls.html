@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background"></div>
+
+    <div class="quiz-container" id="quiz-container">
+
+        <div class="quiz-header">
+            <span class="quiz-title">TEST BLS</span>
+            <span class="quiz-progress">Întrebarea: <b id="progress">1/10</b></span>
+            <span class="quiz-progress">Greșeli: <b id="mistakes" style="color:#ff4444;">0/3</b></span>                        
+            <span class="quiz-timer">Timp Rămas: <b id="timer">03:00</b></span>
+        </div>
+
+        <div id="questionBox" class="quiz-question"></div>
+
+        <div id="answersBox" class="quiz-answers"></div>
+
+        <div class="quiz-actions">
+            <button id="btn-next" class="btn-confirm" disabled onclick="confirmAndNext()">Trimite Răspunsul</button>
+            <button id="btn-revoke" class="btn-revoke" style="display:none;" onclick="revokeAnswer()">Șterge Răspunsul</button>
+        </div>
+
+    </div>
+
+    <script src="bls.js"></script>
+</body>
+</html>
