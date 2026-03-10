@@ -1,5 +1,6 @@
-// ================= STARE TEST =================
+// ================= VARIABILE =================
 let currentQuestionIndex = 0;
+let totalQuestions = 0;
 let mistakes = 0;
 let timerInterval;
 let timeLeft = 360;
@@ -7,10 +8,16 @@ let testTerminat = false;
 let selectedAnswer = null;
 let currentSelection = null;
 let transcript = [];
-let totalQuestions = 0;
+let postponedQuestions = [];
 
 // ================= ANTI-CHEAT =================
 if (performance.navigation.type === 1) autoFail("RESPINS (Refresh Pagina)");
+
+async function autoFail(reason) {
+    testTerminat = true;
+    await sendResult(false, reason);
+    window.location.href = 'index.html';
+}
 
 document.addEventListener('visibilitychange', function () {
     if (document.hidden && !testTerminat) {
@@ -19,22 +26,17 @@ document.addEventListener('visibilitychange', function () {
     }
 });
 
-async function autoFail(reason) {
-    testTerminat = true;
-    await sendResult(false, reason);
-    window.location.href = 'index.html';
-}
-
 async function failDueToCheating() {
     testTerminat = true;
-    await sendResult(false, "RESPINS (Tab Switch)");
+    await sendResult(false, "RESPINS (Tab Switch/Minimizare)");
     const container = document.getElementById('quiz-container');
     if (container) {
         container.innerHTML = `
-            <div style="padding:20px; border:2px solid #ff3c00; border-radius:15px; text-align:center;">
-                <h1 style="color:#ff3c00;">TEST ANULAT</h1>
-                <p>Tentativa de fraudă a fost trimisă către conducere.</p>
-                <button onclick="window.location.href='index.html'">Înapoi</button>
+            <div class="result-screen">
+                <div class="result-icon result-icon--failed">✕</div>
+                <h1 class="result-title result-title--failed">TEST ANULAT</h1>
+                <p style="color:rgba(255,255,255,0.5); font-size:14px;">Ai părăsit pagina sau ai minimizat browserul.</p>
+                <button class="btn-confirm btn-confirm--muted" onclick="window.location.href='index.html'">Înapoi</button>
             </div>`;
     }
 }
@@ -43,85 +45,160 @@ async function failDueToCheating() {
 function startTimer() {
     timerInterval = setInterval(() => {
         if (testTerminat) return;
-        let min = Math.floor(timeLeft / 60);
-        let sec = timeLeft % 60;
-        document.getElementById('timer').innerText = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        const timerEl = document.getElementById('timer');
+        if (timerEl) timerEl.innerText = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
         if (timeLeft <= 0) { clearInterval(timerInterval); finishTest(false); }
         timeLeft--;
     }, 1000);
 }
 
-// ================= FETCH ÎNTREBARE DE PE SERVER =================
+// ================= FETCH INTREBARE =================
 async function fetchQuestion(index) {
     const res = await fetch(`/api/rezidentiat-question/${index}`);
     if (!res.ok) return null;
     return await res.json();
 }
 
-// ================= INIȚIALIZARE =================
+// ================= INITIALIZARE =================
 async function initTest() {
-    // Aflăm câte întrebări sunt în total
-    const res = await fetch('/api/rezidentiat-count');
-    const data = await res.json();
-    totalQuestions = data.count;
-    startTimer();
-    await renderQuestion();
+    try {
+        const res = await fetch('/api/rezidentiat-count');
+        if (!res.ok) throw new Error("Server error: " + res.status);
+        const data = await res.json();
+        totalQuestions = data.count;
+        startTimer();
+        await renderQuestion();
+    } catch (err) {
+        console.error("initTest failed:", err);
+        const qBox = document.getElementById('questionBox');
+        if (qBox) qBox.innerText = "Eroare la conectarea cu serverul: " + err.message;
+    }
 }
 
-// ================= RENDER ÎNTREBARE =================
+// ================= RENDER INTREBARE =================
 async function renderQuestion() {
     selectedAnswer = null;
     currentSelection = null;
-    document.getElementById('btn-next').disabled = true;
-    document.getElementById('btn-next').style.opacity = "0.5";
-    document.getElementById('btn-revoke').style.display = "none";
 
-    const q = await fetchQuestion(currentQuestionIndex);
-    if (!q) return finishTest(false);
+    const btnNext = document.getElementById('btn-next');
+    const btnRevoke = document.getElementById('btn-revoke');
+    if (btnNext) { btnNext.disabled = true; btnNext.style.opacity = "0.5"; btnNext.style.cursor = "not-allowed"; }
+    if (btnRevoke) btnRevoke.style.display = "none";
 
-    document.getElementById('progress').innerText = `${currentQuestionIndex + 1}/${totalQuestions}`;
-    document.getElementById('mistakes').innerText = `${mistakes}/3`;
-    document.getElementById('questionBox').innerText = q.question;
-
+    const qBox = document.getElementById('questionBox');
     const aBox = document.getElementById('answersBox');
-    aBox.innerHTML = '';
 
-    // answers vine deja amestecat de pe server, fără a indica care e corect
-    q.answers.forEach((text) => {
-        const btn = document.createElement('button');
-        btn.className = 'answerBtn';
-        btn.innerText = text;
-        btn.onclick = () => {
-            if (selectedAnswer !== null) return;
-            currentSelection = { answerText: text, questionIndex: currentQuestionIndex };
-            selectedAnswer = text;
-            highlightSelection(btn);
-        };
-        aBox.appendChild(btn);
-    });
+    let questionData = null;
+
+    if (currentQuestionIndex < totalQuestions) {
+        questionData = await fetchQuestion(currentQuestionIndex);
+    } else if (postponedQuestions.length > 0) {
+        questionData = postponedQuestions.shift();
+    } else {
+        return finishTest(true);
+    }
+
+    try {
+        if (!questionData) throw new Error("Eroare server");
+
+        qBox.innerText = questionData.question;
+        aBox.innerHTML = '';
+
+        document.getElementById('progress').innerText = `${currentQuestionIndex + 1}/${totalQuestions}`;
+
+        const mistakesEl = document.getElementById('mistakes');
+        if (mistakesEl) mistakesEl.innerText = `${mistakes}/3`;
+
+        questionData.answers.forEach((ans, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'answerBtn';
+            btn.innerText = ans;
+            btn.onclick = () => selectOption(idx, ans);
+            aBox.appendChild(btn);
+        });
+
+    } catch (err) {
+        console.error(err);
+        if (qBox) qBox.innerText = "Eroare la încărcarea întrebării.";
+    }
 }
 
-function highlightSelection(btn) {
-    document.querySelectorAll('.answerBtn').forEach(b => b.style.opacity = "0.5");
-    btn.style.opacity = "1";
-    btn.style.borderColor = "#00c3ff";
-    btn.style.background = "rgba(0,195,255,0.1)";
-    document.getElementById('btn-next').disabled = false;
-    document.getElementById('btn-next').style.opacity = "1";
+// ================= RASPUNDE MAI TARZIU =================
+window.postponeQuestion = async function () {
+    let questionData = null;
+
+    if (currentQuestionIndex < totalQuestions) {
+        questionData = await fetchQuestion(currentQuestionIndex);
+    }
+
+    if (questionData) {
+        const insertAt = postponedQuestions.length > 0
+            ? Math.floor(Math.random() * (postponedQuestions.length + 1))
+            : 0;
+        postponedQuestions.splice(insertAt, 0, questionData);
+    }
+
+    currentQuestionIndex++;
+
+    if (currentQuestionIndex >= totalQuestions && postponedQuestions.length > 0) {
+        await renderQuestion();
+    } else if (currentQuestionIndex >= totalQuestions && postponedQuestions.length === 0) {
+        finishTest(true);
+    } else {
+        await renderQuestion();
+    }
+}
+
+// ================= SELECT OPTION =================
+function selectOption(index, answerText) {
+    if (selectedAnswer !== null) return;
+
+    selectedAnswer = answerText;
+    currentSelection = { answerText, questionIndex: currentQuestionIndex };
+
+    document.querySelectorAll('.answerBtn').forEach(btn => {
+        btn.classList.remove('selected');
+        btn.style.opacity = "0.5";
+        btn.style.cursor = "not-allowed";
+        btn.style.pointerEvents = "none";
+    });
+
+    const selectedBtn = document.querySelectorAll('.answerBtn')[index];
+    selectedBtn.classList.add('selected');
+    selectedBtn.style.opacity = "1";
+
+    const btnNext = document.getElementById('btn-next');
+    btnNext.disabled = false;
+    btnNext.style.opacity = "1";
+    btnNext.style.cursor = "pointer";
     document.getElementById('btn-revoke').style.display = "block";
 }
 
+// ================= REVOKE =================
 window.revokeAnswer = function () {
     selectedAnswer = null;
     currentSelection = null;
-    renderQuestion();
+
+    document.querySelectorAll('.answerBtn').forEach(btn => {
+        btn.classList.remove('selected');
+        btn.style.opacity = "1";
+        btn.style.cursor = "pointer";
+        btn.style.pointerEvents = "auto";
+    });
+
+    const btnNext = document.getElementById('btn-next');
+    btnNext.disabled = true;
+    btnNext.style.opacity = "0.5";
+    btnNext.style.cursor = "not-allowed";
+    document.getElementById('btn-revoke').style.display = "none";
 }
 
-// ================= CONFIRMARE RĂSPUNS (validare pe server) =================
+// ================= CONFIRM AND NEXT =================
 window.confirmAndNext = async function () {
     if (!currentSelection) return;
 
-    // Trimitem răspunsul la server și primim doar corect/greșit
     const res = await fetch('/api/rezidentiat-answer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -140,22 +217,33 @@ window.confirmAndNext = async function () {
         isCorrect: result.correct
     });
 
-    if (!result.correct) mistakes++;
+    if (!result.correct) {
+        mistakes++;
+        const mistakesEl = document.getElementById('mistakes');
+        if (mistakesEl) mistakesEl.innerText = `${mistakes}/3`;
+    }
+
     if (mistakes >= 3) return finishTest(false);
 
     currentQuestionIndex++;
-    if (currentQuestionIndex >= totalQuestions) finishTest(true);
-    else await renderQuestion();
+
+    if (currentQuestionIndex >= totalQuestions && postponedQuestions.length > 0) {
+        await renderQuestion();
+    } else if (currentQuestionIndex >= totalQuestions) {
+        finishTest(true);
+    } else {
+        await renderQuestion();
+    }
 }
 
-// ================= TRIMITERE REZULTAT =================
+// ================= SEND RESULT =================
 async function sendResult(passed, cheatReason = null) {
     try {
         await fetch('/api/test-result', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                testType: "Test Rezidentiat",
+                testType: "REZIDENȚIAT",
                 passed: cheatReason ? false : passed,
                 warning: cheatReason,
                 remainingTime: timeLeft,
@@ -163,20 +251,53 @@ async function sendResult(passed, cheatReason = null) {
                 transcript: transcript
             })
         });
-    } catch (e) { console.error(e); }
+    } catch (e) {
+        console.error("Eroare la trimiterea rezultatelor.", e);
+    }
 }
 
-// ================= FINALIZARE =================
+// ================= FINISH TEST =================
 async function finishTest(passed) {
     testTerminat = true;
     clearInterval(timerInterval);
+
     const container = document.getElementById('quiz-container');
+    const finalTime = document.getElementById('timer')?.innerText || "00:00";
 
     container.innerHTML = passed
-        ? `<h1 style="color:#00ff88">ADMIS REZIDENȚIAT</h1><p>Greșeli: ${mistakes}/3</p><button onclick="window.location.href='index.html'">Finalizează</button>`
-        : `<h1 style="color:#ff3c00">RESPINS REZIDENȚIAT</h1><p>Greșeli: ${mistakes}/3</p><button onclick="window.location.href='index.html'">Înapoi</button>`;
+        ? `<div class="result-screen">
+                <div class="result-icon result-icon--passed">✓</div>
+                <h1 class="result-title result-title--passed">AI TRECUT TESTUL!</h1>
+                <div class="result-stats">
+                    <div class="result-stat">
+                        <span class="stat-label">Greșeli</span>
+                        <span class="stat-value">${mistakes}/3</span>
+                    </div>
+                    <div class="result-stat">
+                        <span class="stat-label">Timp rămas</span>
+                        <span class="stat-value">${finalTime}</span>
+                    </div>
+                </div>
+                <button class="btn-confirm" onclick="window.location.href='index.html'">Finalizează</button>
+           </div>`
+        : `<div class="result-screen">
+                <div class="result-icon result-icon--failed">✕</div>
+                <h1 class="result-title result-title--failed">DIN PĂCATE AI PICAT</h1>
+                <div class="result-stats">
+                    <div class="result-stat">
+                        <span class="stat-label">Greșeli</span>
+                        <span class="stat-value">${mistakes}/3</span>
+                    </div>
+                    <div class="result-stat">
+                        <span class="stat-label">Timp rămas</span>
+                        <span class="stat-value">${finalTime}</span>
+                    </div>
+                </div>
+                <button class="btn-confirm btn-confirm--muted" onclick="window.location.href='index.html'">Am înțeles</button>
+           </div>`;
 
     await sendResult(passed);
 }
 
+// ================= START =================
 initTest();

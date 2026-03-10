@@ -1,5 +1,6 @@
-// ================= STARE TEST =================
+// ================= VARIABILE =================
 let currentQuestionIndex = 0;
+let totalQuestions = 0;
 let mistakes = 0;
 let timerInterval;
 let timeLeft = 180;
@@ -7,10 +8,16 @@ let testTerminat = false;
 let selectedAnswer = null;
 let currentSelection = null;
 let transcript = [];
-let totalQuestions = 0;
+let postponedQuestions = [];
 
 // ================= ANTI-CHEAT =================
 if (performance.navigation.type === 1) autoFail("RESPINS (Refresh Pagina)");
+
+async function autoFail(reason) {
+    testTerminat = true;
+    await sendResult(false, reason);
+    window.location.href = 'index.html';
+}
 
 document.addEventListener('visibilitychange', function () {
     if (document.hidden && !testTerminat) {
@@ -19,12 +26,6 @@ document.addEventListener('visibilitychange', function () {
     }
 });
 
-async function autoFail(reason) {
-    testTerminat = true;
-    await sendResult(false, reason);
-    window.location.href = 'index.html';
-}
-
 async function failDueToCheating() {
     testTerminat = true;
     await sendResult(false, "RESPINS (Tab Switch/Minimizare)");
@@ -32,10 +33,10 @@ async function failDueToCheating() {
     if (container) {
         container.innerHTML = `
             <div class="result-screen">
-                <div class="result-icon result-icon--failed">&#10005;</div>
+                <div class="result-icon result-icon--failed">✕</div>
                 <h1 class="result-title result-title--failed">TEST ANULAT</h1>
-                <p style="color:rgba(255,255,255,0.5); font-size:14px;">Ai parasit pagina sau ai minimizat browserul.</p>
-                <button class="btn-confirm btn-confirm--muted" onclick="window.location.href='index.html'">Inapoi</button>
+                <p style="color:rgba(255,255,255,0.5); font-size:14px;">Ai părăsit pagina sau ai minimizat browserul.</p>
+                <button class="btn-confirm btn-confirm--muted" onclick="window.location.href='index.html'">Înapoi</button>
             </div>`;
     }
 }
@@ -89,11 +90,20 @@ async function renderQuestion() {
     const qBox = document.getElementById('questionBox');
     const aBox = document.getElementById('answersBox');
 
-    try {
-        const q = await fetchQuestion(currentQuestionIndex);
-        if (!q) throw new Error("Eroare server");
+    let questionData = null;
 
-        qBox.innerText = q.question;
+    if (currentQuestionIndex < totalQuestions) {
+        questionData = await fetchQuestion(currentQuestionIndex);
+    } else if (postponedQuestions.length > 0) {
+        questionData = postponedQuestions.shift();
+    } else {
+        return finishTest(true);
+    }
+
+    try {
+        if (!questionData) throw new Error("Eroare server");
+
+        qBox.innerText = questionData.question;
         aBox.innerHTML = '';
 
         document.getElementById('progress').innerText = `${currentQuestionIndex + 1}/${totalQuestions}`;
@@ -101,17 +111,43 @@ async function renderQuestion() {
         const mistakesEl = document.getElementById('mistakes');
         if (mistakesEl) mistakesEl.innerText = `${mistakes}/2`;
 
-        q.answers.forEach((text, idx) => {
+        questionData.answers.forEach((ans, idx) => {
             const btn = document.createElement('button');
             btn.className = 'answerBtn';
-            btn.innerText = text;
-            btn.onclick = () => selectOption(idx, text);
+            btn.innerText = ans;
+            btn.onclick = () => selectOption(idx, ans);
             aBox.appendChild(btn);
         });
 
     } catch (err) {
         console.error(err);
-        if (qBox) qBox.innerText = "Eroare la incarcarea intrebarii.";
+        if (qBox) qBox.innerText = "Eroare la încărcarea întrebării.";
+    }
+}
+
+// ================= RASPUNDE MAI TARZIU =================
+window.postponeQuestion = async function () {
+    let questionData = null;
+
+    if (currentQuestionIndex < totalQuestions) {
+        questionData = await fetchQuestion(currentQuestionIndex);
+    }
+
+    if (questionData) {
+        const insertAt = postponedQuestions.length > 0
+            ? Math.floor(Math.random() * (postponedQuestions.length + 1))
+            : 0;
+        postponedQuestions.splice(insertAt, 0, questionData);
+    }
+
+    currentQuestionIndex++;
+
+    if (currentQuestionIndex >= totalQuestions && postponedQuestions.length > 0) {
+        await renderQuestion();
+    } else if (currentQuestionIndex >= totalQuestions && postponedQuestions.length === 0) {
+        finishTest(true);
+    } else {
+        await renderQuestion();
     }
 }
 
@@ -123,14 +159,15 @@ function selectOption(index, answerText) {
     currentSelection = { answerText, questionIndex: currentQuestionIndex };
 
     document.querySelectorAll('.answerBtn').forEach(btn => {
+        btn.classList.remove('selected');
+        btn.style.opacity = "0.5";
         btn.style.cursor = "not-allowed";
-        btn.style.background = "rgba(255,255,255,0.08)";
-        btn.style.borderColor = "rgba(255,255,255,0.1)";
+        btn.style.pointerEvents = "none";
     });
 
     const selectedBtn = document.querySelectorAll('.answerBtn')[index];
-    selectedBtn.style.borderColor = "#00c3ff";
-    selectedBtn.style.background = "rgba(0,195,255,0.1)";
+    selectedBtn.classList.add('selected');
+    selectedBtn.style.opacity = "1";
 
     const btnNext = document.getElementById('btn-next');
     btnNext.disabled = false;
@@ -145,9 +182,10 @@ window.revokeAnswer = function () {
     currentSelection = null;
 
     document.querySelectorAll('.answerBtn').forEach(btn => {
-        btn.style.borderColor = "rgba(255,255,255,0.1)";
-        btn.style.background = "rgba(255,255,255,0.08)";
+        btn.classList.remove('selected');
+        btn.style.opacity = "1";
         btn.style.cursor = "pointer";
+        btn.style.pointerEvents = "auto";
     });
 
     const btnNext = document.getElementById('btn-next');
@@ -161,7 +199,6 @@ window.revokeAnswer = function () {
 window.confirmAndNext = async function () {
     if (!currentSelection) return;
 
-    // Dezactivam butonul sa nu se apese de 2 ori
     const btnNext = document.getElementById('btn-next');
     btnNext.disabled = true;
     btnNext.style.opacity = "0.5";
@@ -191,7 +228,6 @@ window.confirmAndNext = async function () {
     if (!result.correct) {
         mistakes++;
 
-        // Arata raspunsul gresit (rosu) si cel corect (verde)
         buttons.forEach(btn => {
             if (btn.innerText === currentSelection.answerText) {
                 btn.style.borderColor = "#ff4444";
@@ -204,19 +240,16 @@ window.confirmAndNext = async function () {
         });
 
         const mistakesEl = document.getElementById('mistakes');
-        if (mistakesEl) mistakesEl.innerText = `${mistakes}/3`;
+        if (mistakesEl) mistakesEl.innerText = `${mistakes}/2`;
 
         if (mistakes >= 2) {
-            // Asteapta 1.5s sa vada raspunsul corect apoi pica
             await new Promise(r => setTimeout(r, 1500));
             return finishTest(false);
         }
 
-        // Asteapta 1.5s sa vada raspunsul corect apoi continua
         await new Promise(r => setTimeout(r, 1500));
 
     } else {
-        // Raspuns corect - arata verde
         buttons.forEach(btn => {
             if (btn.innerText === currentSelection.answerText) {
                 btn.style.borderColor = "#00ff88";
@@ -227,8 +260,14 @@ window.confirmAndNext = async function () {
     }
 
     currentQuestionIndex++;
-    if (currentQuestionIndex >= totalQuestions) finishTest(true);
-    else await renderQuestion();
+
+    if (currentQuestionIndex >= totalQuestions && postponedQuestions.length > 0) {
+        await renderQuestion();
+    } else if (currentQuestionIndex >= totalQuestions) {
+        finishTest(true);
+    } else {
+        await renderQuestion();
+    }
 }
 
 // ================= SEND RESULT =================
@@ -256,39 +295,39 @@ async function finishTest(passed) {
     testTerminat = true;
     clearInterval(timerInterval);
 
-    const container = document.querySelector('.quiz-container');
+    const container = document.getElementById('quiz-container');
     const finalTime = document.getElementById('timer')?.innerText || "00:00";
 
     container.innerHTML = passed
         ? `<div class="result-screen">
-                <div class="result-icon result-icon--passed">&#10003;</div>
-                <h1 class="result-title result-title--passed">ADMIS SMULS!</h1>
+                <div class="result-icon result-icon--passed">✓</div>
+                <h1 class="result-title result-title--passed">AI TRECUT TESTUL!</h1>
                 <div class="result-stats">
                     <div class="result-stat">
-                        <span class="stat-label">Greseli</span>
-                        <span class="stat-value">${mistakes}/3</span>
+                        <span class="stat-label">Greșeli</span>
+                        <span class="stat-value">${mistakes}/2</span>
                     </div>
                     <div class="result-stat">
-                        <span class="stat-label">Timp ramas</span>
+                        <span class="stat-label">Timp rămas</span>
                         <span class="stat-value">${finalTime}</span>
                     </div>
                 </div>
-                <button class="btn-confirm" onclick="window.location.href='index.html'">Finalizeaza</button>
+                <button class="btn-confirm" onclick="window.location.href='index.html'">Finalizează</button>
            </div>`
         : `<div class="result-screen">
-                <div class="result-icon result-icon--failed">&#10005;</div>
-                <h1 class="result-title result-title--failed">RESPINS SMULS</h1>
+                <div class="result-icon result-icon--failed">✕</div>
+                <h1 class="result-title result-title--failed">DIN PĂCATE AI PICAT</h1>
                 <div class="result-stats">
                     <div class="result-stat">
-                        <span class="stat-label">Greseli</span>
-                        <span class="stat-value">${mistakes}/3</span>
+                        <span class="stat-label">Greșeli</span>
+                        <span class="stat-value">${mistakes}/2</span>
                     </div>
                     <div class="result-stat">
-                        <span class="stat-label">Timp ramas</span>
+                        <span class="stat-label">Timp rămas</span>
                         <span class="stat-value">${finalTime}</span>
                     </div>
                 </div>
-                <button class="btn-confirm btn-confirm--muted" onclick="window.location.href='index.html'">Am inteles</button>
+                <button class="btn-confirm btn-confirm--muted" onclick="window.location.href='index.html'">Am înțeles</button>
            </div>`;
 
     await sendResult(passed);

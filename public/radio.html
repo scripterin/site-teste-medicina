@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RADIO</title>
+    <title>Rezidențiat</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,10 +12,10 @@
     <div class="quiz-container" id="quiz-container">
 
         <div class="quiz-header">
-            <span class="quiz-title">TEST RADIO</span>
-            <span class="quiz-progress">Întrebarea: <b id="progress">1/12</b></span>
-            <span class="quiz-progress">Greșeli: <b id="mistakes" style="color:#ff4444;">0/3</b></span>            
-            <span class="quiz-timer">Timp Rămas: <b id="timer">02:15</b></span>
+            <span class="quiz-title">🎓 REZIDENȚIAT</span>
+            <span class="quiz-progress">Întrebarea: <b id="progress">1/25</b></span>
+            <span class="quiz-progress">Greșeli: <b id="mistakes" style="color:#ff4444;">0/3</b></span>
+            <span class="quiz-timer">Timp Rămas: <b id="timer">06:00</b></span>
         </div>
 
         <div id="questionBox" class="quiz-question"></div>
@@ -25,10 +25,11 @@
         <div class="quiz-actions">
             <button id="btn-next" class="btn-confirm" disabled onclick="confirmAndNext()">Trimite Răspunsul</button>
             <button id="btn-revoke" class="btn-revoke" style="display:none;" onclick="revokeAnswer()">Șterge Răspunsul</button>
+            <button id="btn-postpone" class="btn-revoke" onclick="postponeQuestion()">⏳ Răspunde mai târziu</button>
         </div>
 
     </div>
 
-    <script src="radio.js"></script>
+    <script src="rezidentiat.js"></script>
 </body>
 </html>

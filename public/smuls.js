@@ -228,47 +228,38 @@ async function finishTest(passed) {
     const finalTime = document.getElementById('timer')?.innerText || "00:00";
 
     container.innerHTML = passed
-        ? `<div class="quiz-header">
-                <span class="quiz-title">🚑 SMULS Teoretic</span>
-           </div>
-           <div class="result-screen">
-                <h1 class="result-title result-title--passed">✔ ADMIS SMULS</h1>
+        ? `<div class="result-screen">
+                <div class="result-icon result-icon--passed">✓</div>
+                <h1 class="result-title result-title--passed">AI TRECUT TESTUL!</h1>
                 <div class="result-stats">
                     <div class="result-stat">
                         <span class="stat-label">Greșeli</span>
                         <span class="stat-value">${mistakes}/3</span>
                     </div>
                     <div class="result-stat">
-                        <span class="stat-label">Timp Rămas</span>
+                        <span class="stat-label">Timp rămas</span>
                         <span class="stat-value">${finalTime}</span>
                     </div>
                 </div>
-                <div class="quiz-actions">
-                    <button class="btn-confirm" onclick="window.location.href='index.html'">Finalizează</button>
-                </div>
+                <button class="btn-confirm" onclick="window.location.href='index.html'">Finalizează</button>
            </div>`
-        : `<div class="quiz-header">
-                <span class="quiz-title">🚑 SMULS Teoretic</span>
-           </div>
-           <div class="result-screen">
-                <h1 class="result-title result-title--failed">✖ RESPINS SMULS</h1>
+        : `<div class="result-screen">
+                <div class="result-icon result-icon--failed">✕</div>
+                <h1 class="result-title result-title--failed">DIN PĂCATE AI PICAT</h1>
                 <div class="result-stats">
                     <div class="result-stat">
                         <span class="stat-label">Greșeli</span>
                         <span class="stat-value">${mistakes}/3</span>
                     </div>
                     <div class="result-stat">
-                        <span class="stat-label">Timp Rămas</span>
+                        <span class="stat-label">Timp rămas</span>
                         <span class="stat-value">${finalTime}</span>
                     </div>
                 </div>
-                <div class="quiz-actions">
-                    <button class="btn-revoke" onclick="window.location.href='index.html'">Am înțeles</button>
-                </div>
+                <button class="btn-confirm btn-confirm--muted" onclick="window.location.href='index.html'">Am înțeles</button>
            </div>`;
 
     await sendResult(passed);
 }
-
 // ================= START =================
 initTest();

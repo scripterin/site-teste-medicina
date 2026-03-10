@@ -9,7 +9,7 @@
 if (window.location.pathname.includes("dashboard.html")) {
     fetch('/api/user')
     .then(res => {
-        if (!res.ok) window.location.href = "index.html";
+        if (!res.ok) window.location.href = "dashboard.html";
     })
     .catch(() => {
         window.location.href = "index.html";

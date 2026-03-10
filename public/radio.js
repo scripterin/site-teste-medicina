@@ -8,6 +8,7 @@ let testTerminat = false;
 let selectedAnswer = null;
 let currentSelection = null;
 let transcript = [];
+let postponedQuestions = []; // coada de intrebari amanate
 
 // ================= ANTI-CHEAT =================
 if (performance.navigation.type === 1) autoFail("RESPINS (Refresh Pagina)");
@@ -89,19 +90,31 @@ async function renderQuestion() {
     const qBox = document.getElementById('questionBox');
     const aBox = document.getElementById('answersBox');
 
-    try {
-        const data = await fetchQuestion(currentQuestionIndex);
-        if (!data) throw new Error("Eroare server");
+    // Daca nu mai sunt intrebari normale, trecem la cele amanate
+    let questionData = null;
 
-        qBox.innerText = data.question;
+    if (currentQuestionIndex < totalQuestions) {
+        questionData = await fetchQuestion(currentQuestionIndex);
+    } else if (postponedQuestions.length > 0) {
+        questionData = postponedQuestions.shift();
+    } else {
+        return finishTest(true);
+    }
+
+    try {
+        if (!questionData) throw new Error("Eroare server");
+
+        qBox.innerText = questionData.question;
         aBox.innerHTML = '';
 
-        document.getElementById('progress').innerText = `${currentQuestionIndex + 1}/${totalQuestions}`;
+        const answeredNormal = currentQuestionIndex < totalQuestions ? currentQuestionIndex : totalQuestions;
+        const remaining = (totalQuestions - answeredNormal) + postponedQuestions.length + (currentQuestionIndex >= totalQuestions ? 1 : 0);
+        document.getElementById('progress').innerText = `${answeredNormal + 1}/${totalQuestions}`;
 
         const mistakesEl = document.getElementById('mistakes');
         if (mistakesEl) mistakesEl.innerText = `${mistakes}/3`;
 
-        data.answers.forEach((ans, idx) => {
+        questionData.answers.forEach((ans, idx) => {
             const btn = document.createElement('button');
             btn.className = 'answerBtn';
             btn.innerText = ans;
@@ -115,6 +128,34 @@ async function renderQuestion() {
     }
 }
 
+// ================= RASPUNDE MAI TARZIU =================
+window.postponeQuestion = async function () {
+    // Luam datele intrebarii curente si le punem in coada
+    let questionData = null;
+
+    if (currentQuestionIndex < totalQuestions) {
+        questionData = await fetchQuestion(currentQuestionIndex);
+    }
+
+    if (questionData) {
+        // Inseram random in coada de amanate sau la final
+        const insertAt = postponedQuestions.length > 0
+            ? Math.floor(Math.random() * (postponedQuestions.length + 1))
+            : 0;
+        postponedQuestions.splice(insertAt, 0, questionData);
+    }
+
+    currentQuestionIndex++;
+
+    if (currentQuestionIndex >= totalQuestions && postponedQuestions.length > 0) {
+        await renderQuestion();
+    } else if (currentQuestionIndex >= totalQuestions && postponedQuestions.length === 0) {
+        finishTest(true);
+    } else {
+        await renderQuestion();
+    }
+}
+
 // ================= SELECT OPTION =================
 function selectOption(index, answerText) {
     if (selectedAnswer !== null) return;
@@ -123,14 +164,15 @@ function selectOption(index, answerText) {
     currentSelection = { answerText, questionIndex: currentQuestionIndex };
 
     document.querySelectorAll('.answerBtn').forEach(btn => {
+        btn.classList.remove('selected');
+        btn.style.opacity = "0.5";
         btn.style.cursor = "not-allowed";
-        btn.style.background = "rgba(255,255,255,0.08)";
-        btn.style.borderColor = "rgba(255,255,255,0.1)";
+        btn.style.pointerEvents = "none";
     });
 
     const selectedBtn = document.querySelectorAll('.answerBtn')[index];
-    selectedBtn.style.borderColor = "#00c3ff";
-    selectedBtn.style.background = "rgba(0,195,255,0.1)";
+    selectedBtn.classList.add('selected');
+    selectedBtn.style.opacity = "1";
 
     const btnNext = document.getElementById('btn-next');
     btnNext.disabled = false;
@@ -145,9 +187,10 @@ window.revokeAnswer = function () {
     currentSelection = null;
 
     document.querySelectorAll('.answerBtn').forEach(btn => {
-        btn.style.borderColor = "rgba(255,255,255,0.1)";
-        btn.style.background = "rgba(255,255,255,0.08)";
+        btn.classList.remove('selected');
+        btn.style.opacity = "1";
         btn.style.cursor = "pointer";
+        btn.style.pointerEvents = "auto";
     });
 
     const btnNext = document.getElementById('btn-next');
@@ -188,8 +231,14 @@ window.confirmAndNext = async function () {
     if (mistakes >= 3) return finishTest(false);
 
     currentQuestionIndex++;
-    if (currentQuestionIndex >= totalQuestions) finishTest(true);
-    else await renderQuestion();
+
+    if (currentQuestionIndex >= totalQuestions && postponedQuestions.length > 0) {
+        await renderQuestion();
+    } else if (currentQuestionIndex >= totalQuestions) {
+        finishTest(true);
+    } else {
+        await renderQuestion();
+    }
 }
 
 // ================= SEND RESULT =================

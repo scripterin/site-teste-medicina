@@ -4,8 +4,14 @@ const session = require('express-session')
 const axios = require("axios")
 const path = require('path')
 const crypto = require('crypto')
+const cors = require('cors')
 
 const app = express()
+
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true
+}))
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -16,7 +22,7 @@ app.use(session({
     secret: process.env.SESSION_SECRET || "supersecret",
     resave: false,
     saveUninitialized: false,
-    cookie: { httpOnly: true, secure: false }
+    cookie: { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax' }
 }))
 
 const codes = new Map()
@@ -105,7 +111,7 @@ async function sendWebhook(user, test, code) {
             { name: "Test", value: `**${test}**`, inline: true },
             { name: "Cod generat", value: `\`${code}\``, inline: false }
         ],
-        footer: { text: `Departamentul Medical FPlayT - ${formattedDate}` }
+        footer: { text: `Eclipse Medical Tower  - ${formattedDate}` }
     }
     try {
         await axios.post(process.env.WEBHOOK_URL, { embeds: [embed] }, { headers: { 'Content-Type': 'application/json' } })
@@ -438,13 +444,13 @@ app.post('/api/test-result', async (req, res) => {
         fields: [
             { name: "Utilizator", value: `<@${req.session.user.id}>`, inline: true },
             { name: "Test", value: testType, inline: true },
-            { name: "Rezultat", value: warning ? "Anulat (Cheat)" : (passed ? "Admis" : "Respins"), inline: false },
+            { name: "Rezultat", value: warning ? "Anulat (⚠️ ANTI-CHEAT)" : (passed ? "Admis" : "Respins"), inline: false },
             { name: "Cooldown până la", value: `\`${passed ? "Fără CD" : cooldownDateText}\``, inline: true },
             { name: "Greșeli", value: `\`${totalMistakes}/3\``, inline: true },
             { name: "Timp rămas", value: `\`${remainingTime} sec\``, inline: true },
             { name: "Detalii greșeli", value: mistakesText, inline: false }
         ],
-        footer: { text: `Departamentul Medical FPlayT - ${formattedDate}` }
+        footer: { text: `Eclipse Medical Tower - ${formattedDate}` }
     };
 
     const embedRezultate = {
@@ -455,7 +461,7 @@ app.post('/api/test-result', async (req, res) => {
             { name: "Test", value: testType, inline: true },
             { name: "Rezultat", value: (passed && !warning) ? "🟢 Admis" : "🔴 Respins", inline: false }
         ],
-        footer: { text: `Departamentul Medical FPlayT - ${formattedDate}` }
+        footer: { text: `Eclipse Medical Tower  - ${formattedDate}` }
     };
 
     if (!passed || warning) {
@@ -477,4 +483,5 @@ app.post('/api/test-result', async (req, res) => {
     res.json({ success: true });
 });
 
-app.listen(3000, () => console.log("Server pornit pe http://localhost:3000"))
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server pornit pe http://localhost:${PORT}`))

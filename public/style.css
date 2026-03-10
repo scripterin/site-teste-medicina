@@ -508,6 +508,7 @@ body {
     opacity: 1;
     transform: translateY(0);
 }
+
 /* ================= TEST PAGE (universal) ================= */
 
 .quiz-container {
@@ -802,6 +803,18 @@ body {
 .btn-confirm--muted:hover:not(:disabled) {
     box-shadow: none !important;
     background: rgba(255, 255, 255, 0.13) !important;
+}
+
+/* ================= Buton Răspunde mai târziu ================= */
+#btn-postpone {
+    border-color: rgba(255, 200, 0, 0.2);
+    color: rgba(255, 200, 0, 0.7);
+}
+
+#btn-postpone:hover {
+    border-color: rgba(255, 200, 0, 0.45);
+    background: rgba(255, 200, 0, 0.07);
+    color: #ffd966;
 }
 
 /* ================= Toast ================= */
